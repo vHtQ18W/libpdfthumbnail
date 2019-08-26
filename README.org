@@ -1,0 +1,10 @@
+#+TITLE libpdfjs
+
+This is the libqtpdfjs dependency. A render viewer that use pdfjs.
+
+* Quick Start
+1. clone this repo.
+2. Install dependency: ~yarn~ or ~npm install~
+** Build
+This project use webpack. Run ~npm run build~ to build. Run ~npm run start~ can
+use live reloading server.
