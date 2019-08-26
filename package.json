@@ -11,7 +11,7 @@
     "webpack-dev-server": "^3.8.0"
   },
   "license": "MIT",
-  "name": "libpdfjs",
+  "name": "libpdfthumbnail",
   "private": true,
   "scripts": {
     "build": "webpack",
