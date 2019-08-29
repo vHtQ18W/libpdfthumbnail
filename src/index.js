@@ -35,8 +35,10 @@ function generatePdfData(fileUrl) {
   }
 }
 
+let loadingTask;
+
 function previewPdf(pdfData) {
-  let loadingTask = pdfJsLib.getDocument({
+  loadingTask = pdfJsLib.getDocument({
     data: pdfData,
     cMapUrl: cmapPath,
     cMapPacked: true
@@ -64,4 +66,35 @@ function generateThumbnail(page) {
   return page.render({canvasContext: canvas.getContext("2d"), viewport: page.getViewport(scale)}).promise.then(function () {
     return canvas;
   });
+}
+
+let pdfAppBridge;
+
+function previewPdfFromFile(file) {
+  console.log('Loading PDF file ' + file);
+  let reader = new FileReader();
+  reader.readAsDataURL(file);
+  reader.onload = () => {
+    let pdfData = atob(reader.result.substring(reader.result.indexOf(',') + 1));
+    previewPdf(pdfData);
+    pdfAppBridge.jsLoaded();
+  };
+}
+
+function pdfAppInitialize() {
+    if (typeof qt != 'undefined') new QWebChannel(qt.webChannelTransport, function(channel) {
+        pdfAppBridge = channel.objects.pdfAppbridge;
+        pdfAppBridge.jsInitialized();
+    });
+}
+
+function pdfAppFetchDestinations() {
+  loadingTask.getDestinations().then(function(destinations) {
+    pdfAppBridge.jsReportDestinations(Object.keys(destinations));
+  });
+}
+
+function pdfAppClose() {
+  loadingTask.destroy();
+  pdfAppBridge.jsClosed();
 }
