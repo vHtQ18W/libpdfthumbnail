@@ -70,6 +70,12 @@ function generateThumbnail(page) {
 
 let pdfAppBridge;
 
+function previewPdfFromFileData(fileData) {
+  pdfData = atob(fileData.substring(reader.result.indexOf(',') + 1));
+  previewPdf(fileData);
+  pdfAppBridge.jsLoaded();
+}
+
 function previewPdfFromFile(file) {
   console.log('Loading PDF file ' + file);
   let reader = new FileReader();
