@@ -1,6 +1,6 @@
 #+TITLE: libpdfthumbnail
 
-This is the libqtpdfjs dependency. A render viewer that use pdfjs.
+This is the libpreview dependency. A render viewer that use pdfjs.
 
 * Quick Start
 1. clone this repo.
