@@ -1,20 +1,13 @@
 const pdfJsLib = require('pdfjs-dist');
 const cmapPath = 'pdfjs-dist/cmaps';
 
-function app() {
-  const element = document.createElement('div');
-  element.id = 'app';
-  return element;
-}
-
-document.body.appendChild(app());
-
 function inputComponent() {
   let input = document.createElement('input');
   input.type = 'file';
   input.id = 'fileinput';
   input.onchange = function() {
     let file = input.files[0];
+    console.log(file);
     let reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = () => {
@@ -26,18 +19,15 @@ function inputComponent() {
   app.appendChild(input);
 }
 
-function generatePdfData(fileUrl) {
-  let reader = new FileReader();
-  reader.readAsDataURL(fileUrl);
-  reader.onload = () => {
-    let pdfData = atob(reader.result.substring(reader.result.indexOf(',') + 1));
-    return pdfData;
-  }
+function decodePdfData(data) {
+  let pdfData = atob(data.substring(reader.result.indexOf(',') + 1));
+  return pdfData;
 }
 
 let loadingTask;
 
 function previewPdf(pdfData) {
+  pdfData = decodePdfData(pdfData);
   loadingTask = pdfJsLib.getDocument({
     data: pdfData,
     cMapUrl: cmapPath,
@@ -68,12 +58,28 @@ function generateThumbnail(page) {
   });
 }
 
+//////////////////////////////////////
+// Pdf App Qt Bridge implementation //
+//////////////////////////////////////
+
 let pdfAppBridge;
 
-function previewPdfFromFileData(fileData) {
-  pdfData = atob(fileData.substring(reader.result.indexOf(',') + 1));
-  previewPdf(fileData);
-  pdfAppBridge.jsLoaded();
+function pdfAppInitialize() {
+  if (typeof qt != 'undefined') new QWebChannel(qt.webChannelTransport, function(channel) {
+    pdfAppBridge = channel.objects.pdfAppBridge;
+    pdfAppBridge.jsInitialized();
+  });
+}
+
+function pdfAppFetchDestinations() {
+  loadingTask.getDestinations().then(function(destinations) {
+    pdfAppBridge.jsReportDestinations(Object.keys(destinations));
+  });
+}
+
+function pdfAppClose() {
+  loadingTask.destroy();
+  pdfAppBridge.jsClosed();
 }
 
 function previewPdfFromFile(file) {
@@ -87,20 +93,7 @@ function previewPdfFromFile(file) {
   };
 }
 
-function pdfAppInitialize() {
-    if (typeof qt != 'undefined') new QWebChannel(qt.webChannelTransport, function(channel) {
-        pdfAppBridge = channel.objects.pdfAppbridge;
-        pdfAppBridge.jsInitialized();
-    });
-}
-
-function pdfAppFetchDestinations() {
-  loadingTask.getDestinations().then(function(destinations) {
-    pdfAppBridge.jsReportDestinations(Object.keys(destinations));
-  });
-}
-
-function pdfAppClose() {
-  loadingTask.destroy();
-  pdfAppBridge.jsClosed();
+function previewPdfFromFileData(fileData) {
+  previewPdf(fileData);
+  pdfAppBridge.jsLoaded();
 }
