@@ -1,3 +1,4 @@
+import './qwebchannel';
 const pdfJsLib = require('pdfjs-dist');
 const cmapPath = 'pdfjs-dist/cmaps';
 
@@ -66,6 +67,7 @@ let pdfAppBridge;
 
 function pdfAppInitialize() {
   if (typeof qt != 'undefined') new QWebChannel(qt.webChannelTransport, function(channel) {
+    alert(channel.objects.pdfAppBridge);
     pdfAppBridge = channel.objects.pdfAppBridge;
     pdfAppBridge.jsInitialized();
   });
